@@ -3,7 +3,7 @@ import plotly.tools as tls
 import plotly.graph_objs as go
 import datetime
 import time
-import Temperature_Sensor
+from Temperature_Sensor import Temperature_Sensor
 import IPython
 import IPython.core.display
 
@@ -68,8 +68,8 @@ def Create_Realtime_Graph(sensor):
 
 def Sense_Temperature():
     # Main Code
-    sensor = TempSense()
-    Create_Realtime_Graph()
+    sensor = Temperature_Sensor.Temperature_Sensor()
+    Create_Realtime_Graph(sensor)
 
 
 if __name__ == "__main__":
