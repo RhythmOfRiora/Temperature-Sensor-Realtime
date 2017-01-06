@@ -1,9 +1,9 @@
+from Temperature_Sensor import Temperature_Sensor
 import plotly.plotly as py
 import plotly.tools as tls
 import plotly.graph_objs as go
 import datetime
 import time
-from Temperature_Sensor import Temperature_Sensor
 import IPython
 import IPython.core.display
 
@@ -17,7 +17,7 @@ def Extract_Temperature(sensor):
     time.sleep(0.5)
 
 
-def Create_Realtime_Graph(sensor):
+def Set_Configuration():
     tls.set_credentials_file(username='cburn92', api_key='Mo832agwJKwbmbV1VJVA')
     tls.set_config_file(sharing='public',
                         world_readable=True,
@@ -28,42 +28,33 @@ def Create_Realtime_Graph(sensor):
                         auto_open=True,
                         plotly_domain="https://plot.ly")
 
-    stream_id = "ygv88fjwgj"
 
-    # Make instance of stream id object
-    stream_1 = go.Stream(
-        token=stream_id,  # link stream id to 'token' key
-        maxpoints=80  # keep a max of 80 pts on screen
-    )
+def Draw_Graph_Loop(stream, sensor):
+    while True:
+        x = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
+        y = Extract_Temperature(sensor)
+        stream.write(dict(x=x, y=y))
+        time.sleep(0.5)  # plot a point every second
+    stream.close()
 
-    # Initialize trace of streaming plot by embedding the unique stream_id
-    trace1 = go.Scatter(
-        x=[],
-        y=[],
-        mode='lines+markers',
-        stream=stream_1  # (!) embed stream id, 1 per trace
-    )
 
+def Initialize_Graph(stream_temp):
+    trace1 = go.Scatter(x=[],y=[],mode='lines+markers',stream=stream_temp)
     data = go.Data([trace1])
     layout = go.Layout(title='Time Series')
     fig = go.Figure(data=data, layout=layout)
     py.iplot(fig, filename='python-streaming')
 
-    # We will provide the stream link object the same token that's associated with the trace we wish to stream to
+
+def Create_Realtime_Graph(sensor):
+    Set_Configuration()
+    stream_id = "ygv88fjwgj"
+    stream_temp = go.Stream(token=stream_id,maxpoints=80)
+    Initialize_Graph(stream_temp)
     s = py.Stream(stream_id)
     s.open()
-
-    # Delay start of stream by 5 sec (time to switch tabs)
     time.sleep(5)
-
-    while True:
-        x = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-        y = Extract_Temperature(sensor)
-
-        # Send data to your plot
-        s.write(dict(x=x, y=y))
-        time.sleep(0.5)  # plot a point every second
-    s.close()
+    Draw_Graph_Loop(s, sensor)
 
 
 def Sense_Temperature():
