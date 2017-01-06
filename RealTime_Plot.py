@@ -8,16 +8,15 @@ import IPython
 import IPython.core.display
 
 
-def Extract_Temperature(sensor):
+def extract_temperature(sensor):
     sensor.serial_protocol_detect()
     sensor.read_rom()
     sensor.read_scratchpad()
     sensor.convert_temperature()
     return sensor.get_readable_temperature(sensor.read_scratchpad())
-    time.sleep(0.5)
 
 
-def Set_Configuration():
+def set_configuration():
     tls.set_credentials_file(username='cburn92', api_key='Mo832agwJKwbmbV1VJVA')
     tls.set_config_file(sharing='public',
                         world_readable=True,
@@ -29,16 +28,16 @@ def Set_Configuration():
                         plotly_domain="https://plot.ly")
 
 
-def Draw_Graph_Loop(stream, sensor):
+def draw_graph_loop(stream, sensor):
     while True:
         x = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
-        y = Extract_Temperature(sensor)
+        y = extract_temperature(sensor)
         stream.write(dict(x=x, y=y))
         time.sleep(0.5)  # plot a point every second
     stream.close()
 
 
-def Initialize_Graph(stream_temp):
+def initialize_graph(stream_temp):
     trace1 = go.Scatter(x=[],y=[],mode='lines+markers',stream=stream_temp)
     data = go.Data([trace1])
     layout = go.Layout(title='Time Series')
@@ -46,22 +45,22 @@ def Initialize_Graph(stream_temp):
     py.iplot(fig, filename='python-streaming')
 
 
-def Create_Realtime_Graph(sensor):
-    Set_Configuration()
+def create_real_time_graph(sensor):
+    set_configuration()
     stream_id = "ygv88fjwgj"
     stream_temp = go.Stream(token=stream_id,maxpoints=80)
-    Initialize_Graph(stream_temp)
+    initialize_graph(stream_temp)
     s = py.Stream(stream_id)
     s.open()
     time.sleep(5)
-    Draw_Graph_Loop(s, sensor)
+    draw_graph_loop(s, sensor)
 
 
-def Sense_Temperature():
+def sense_temperature():
     # Main Code
     sensor = Temperature_Sensor.Temperature_Sensor()
-    Create_Realtime_Graph(sensor)
+    create_real_time_graph(sensor)
 
 
 if __name__ == "__main__":
-    Sense_Temperature()
+    sense_temperature()
