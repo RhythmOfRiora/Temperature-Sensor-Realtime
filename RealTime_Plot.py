@@ -4,6 +4,9 @@ import plotly.tools as tls
 import plotly.graph_objs as go
 import datetime
 import time
+import sys
+import os
+import json
 import IPython
 import IPython.core.display
 
@@ -17,8 +20,8 @@ def extract_temperature(sensor):
     return sensor.get_readable_temperature(sensor.read_scratchpad())
 
 
-def set_configuration():
-    tls.set_credentials_file(username='cburn92', api_key='')
+def set_configuration(data):
+    tls.set_credentials_file(username=data["username"], api_key=data['api_key'])
     tls.set_config_file(sharing='public',
                         world_readable=True,
                         plotly_streaming_domain="stream.plot.ly",
@@ -47,8 +50,11 @@ def initialize_graph(stream_temp):
 
 
 def create_real_time_graph(sensor):
-    set_configuration()
-    stream_id = ""
+    config_file_path = sys.argv[1]
+    with open(config_file_path) as data_file:
+        data = json.load(data_file)
+    set_configuration(data)
+    stream_id = data["stream_id"]
     stream_temp = go.Stream(token=stream_id,maxpoints=80)
     initialize_graph(stream_temp)
     s = py.Stream(stream_id)
@@ -60,6 +66,7 @@ def create_real_time_graph(sensor):
 def sense_temperature():
     # Main Code
     sensor = Temperature_Sensor.Temperature_Sensor()
+    extract_temperature(sensor)
     create_real_time_graph(sensor)
 
 

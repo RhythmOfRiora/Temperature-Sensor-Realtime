@@ -1,12 +1,17 @@
 from __future__ import division
 import serial
+import serial.tools.list_ports
 import time
 
 
 
 class Temperature_Sensor(object):
     def __init__(self):
-        self.port = serial.Serial('COM7')
+        ports = list(serial.tools.list_ports.comports())
+        for p in ports:
+            if p.description[0:8] == "Prolific" or p.vid == 0x067b:
+                port_conn = str(p.device).encode('ascii', 'ignore')
+        self.port = serial.Serial(port_conn)
 
 
     def reset(self):
@@ -28,6 +33,8 @@ class Temperature_Sensor(object):
 
 
     def read_rom(self):
+        self.port.write("\xE3\xC1\xE1")
+        self.port.read(1)
         self.port.write("\x33")
         self.port.write("\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF")
         resp = self.port.read(9)
@@ -41,6 +48,7 @@ class Temperature_Sensor(object):
         resp = self.port.read(10)
         for i in resp:
             bytelist.append(ord(i))
+        print
         self.reset()
         return bytelist[1:]
 
