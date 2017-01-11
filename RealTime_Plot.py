@@ -7,6 +7,7 @@ import time
 import IPython
 import IPython.core.display
 
+#TODO read in API Key and Stream ID from config file.
 
 def extract_temperature(sensor):
     sensor.serial_protocol_detect()
@@ -17,7 +18,7 @@ def extract_temperature(sensor):
 
 
 def set_configuration():
-    tls.set_credentials_file(username='cburn92', api_key='Mo832agwJKwbmbV1VJVA')
+    tls.set_credentials_file(username='cburn92', api_key='')
     tls.set_config_file(sharing='public',
                         world_readable=True,
                         plotly_streaming_domain="stream.plot.ly",
@@ -47,7 +48,7 @@ def initialize_graph(stream_temp):
 
 def create_real_time_graph(sensor):
     set_configuration()
-    stream_id = "ygv88fjwgj"
+    stream_id = ""
     stream_temp = go.Stream(token=stream_id,maxpoints=80)
     initialize_graph(stream_temp)
     s = py.Stream(stream_id)
