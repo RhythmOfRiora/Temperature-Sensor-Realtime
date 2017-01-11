@@ -10,8 +10,14 @@ import json
 import IPython
 import IPython.core.display
 
-#TODO read in API Key and Stream ID from config file.
+###
+#   This code takes a command line argument of the path to a .txt or .json file containing the following fields:
+#   "api_key", "username", "stream_id". These refer to your Plotly username, API key and Stream ID which can be
+#   found in the Settings section of your Plotly account.
+###
 
+
+# This function aggregates calls to functions in the Temperature Sensor class and returns a readable temperature.
 def extract_temperature(sensor):
     sensor.serial_protocol_detect()
     sensor.read_rom()
@@ -20,6 +26,7 @@ def extract_temperature(sensor):
     return sensor.get_readable_temperature(sensor.read_scratchpad())
 
 
+# This function ensures that the configuration files contain the correct details and are not corrupted.
 def set_configuration(data):
     tls.set_credentials_file(username=data["username"], api_key=data['api_key'])
     tls.set_config_file(sharing='public',
@@ -32,6 +39,7 @@ def set_configuration(data):
                         plotly_domain="https://plot.ly")
 
 
+# This function draws the "real time" graph in a loop.
 def draw_graph_loop(stream, sensor):
     while True:
         x = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')
@@ -41,6 +49,7 @@ def draw_graph_loop(stream, sensor):
     stream.close()
 
 
+# This function initializes the Plotly graph.
 def initialize_graph(stream_temp):
     trace1 = go.Scatter(x=[],y=[],mode='lines+markers',stream=stream_temp)
     data = go.Data([trace1])
@@ -49,6 +58,7 @@ def initialize_graph(stream_temp):
     py.iplot(fig, filename='python-streaming')
 
 
+# This function calls the setup and main graph loop.
 def create_real_time_graph(sensor):
     config_file_path = sys.argv[1]
     with open(config_file_path) as data_file:
@@ -63,8 +73,8 @@ def create_real_time_graph(sensor):
     draw_graph_loop(s, sensor)
 
 
+# Main Code
 def sense_temperature():
-    # Main Code
     sensor = Temperature_Sensor.Temperature_Sensor()
     extract_temperature(sensor)
     create_real_time_graph(sensor)
