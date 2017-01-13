@@ -1,0 +1,5 @@
+{
+   "api_key": "xxxxxxxxxxxxxxxxxxxx",
+   "username": "xxxxxx",
+   "stream_id": "xxxxxxxxxx"
+}
